@@ -1,0 +1,8 @@
+prefix=/home/lhc/work/CUDA_test_ws/src/cmake-build-debug/devel
+
+Name: mppi_controller
+Description: Description of mppi_controller
+Version: 0.0.0
+Cflags: -I/home/lhc/work/CUDA_test_ws/src/mppi_controller/include
+Libs: -L/home/lhc/work/CUDA_test_ws/src/cmake-build-debug/devel/lib 
+Requires: 

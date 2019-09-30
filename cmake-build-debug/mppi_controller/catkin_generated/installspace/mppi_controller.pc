@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: mppi_controller
+Description: Description of mppi_controller
+Version: 0.0.0
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib 
+Requires: 

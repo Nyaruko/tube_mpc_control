@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/lhc/work/CUDA_test_ws/src/cmake-build-debug/devel/setup.sh
