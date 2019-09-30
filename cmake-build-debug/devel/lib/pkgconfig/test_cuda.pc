@@ -1,8 +1,0 @@
-prefix=/home/lhc/work/CUDA_test_ws/src/cmake-build-debug/devel
-
-Name: test_cuda
-Description: Description of test_cuda
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/lhc/work/CUDA_test_ws/src/cmake-build-debug/devel/lib 
-Requires: 
