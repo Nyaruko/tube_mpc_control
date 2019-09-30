@@ -1,0 +1,2 @@
+
+-G Unix Makefiles -DCATKIN_DEVEL_PREFIX=/home/lhc/work/CUDA_test_ws/src/tube_ctrl_srvs/devel_isolated -DCMAKE_INSTALL_PREFIX=/home/lhc/work/CUDA_test_ws/src/tube_ctrl_srvs/install_isolated
