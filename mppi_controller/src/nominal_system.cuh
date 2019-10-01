@@ -14,6 +14,9 @@ namespace mppi_control {
                 u_ = (float*)malloc(CTRL_DIM*sizeof(float));
             }
             ~NominalSys() {
+                delete state_;
+                delete u_;
+                delete model_;
 
             }
 

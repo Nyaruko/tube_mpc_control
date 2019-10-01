@@ -8,24 +8,49 @@
 
 namespace mppi_control {
 
-    SimpleCosts::SimpleCosts() {
+    SimpleCosts::SimpleCosts(ros::NodeHandle _node) {
         // HANDLE_ERROR( cudaMalloc((void**)&params_d_, sizeof(CostParams)) );
+        /* param list */
+        float _ctrl_c = 1.0;
+        float _speed_c[3] = {3.0, 3.0, 3.0};
+        float _acc_c[3] = {1.0, 1.0, 1.0};
+        float _track_c[4] = {20.0, 20.0, 120.0, 100.0};
+        float _obs_c = 350.0;
+        float _dis_c = 2.0;
+        float _crash_c = 1000.0;
+        _node.param<float>("ctrl_coefficient", _ctrl_c, 1.0);
+        _node.param<float>("speed_coefficient/x", _speed_c[0], 3.0);
+        _node.param<float>("speed_coefficient/y", _speed_c[1], 3.0);
+        _node.param<float>("speed_coefficient/z", _speed_c[2], 3.0);
+        _node.param<float>("acc_coefficient/x", _acc_c[0], 1.0);
+        _node.param<float>("acc_coefficient/y", _acc_c[1], 1.0);
+        _node.param<float>("acc_coefficient/z", _acc_c[2], 1.0);
+        _node.param<float>("track_coefficient/x", _track_c[0], 20.0);
+        _node.param<float>("track_coefficient/y", _track_c[1], 20.0);
+        _node.param<float>("track_coefficient/z", _track_c[2], 120.0);
+        _node.param<float>("track_coefficient/yaw", _track_c[3], 100.0);
+        _node.param<float>("obstacle_coefficient", _obs_c, 350.0);
+        _node.param<float>("distance_coefficient", _dis_c, 2.0);
+        _node.param<float>("crash_coefficient", _crash_c, 1000.0);
         allocateCudaMem();
         params_host_.desired_pos[0] = 0.0;
         params_host_.desired_pos[1] = 0.0;
         params_host_.desired_pos[2] = -1.0;
         params_host_.desired_orientation = 1.0;
-        params_host_.control_coefficient = 1.0;
-        params_host_.speed_coefficient[0] = 3.0;
-        params_host_.speed_coefficient[1] = 3.0;
-        params_host_.speed_coefficient[2] = 3.0;
-        params_host_.acc_coefficient[0] = 1.0;
-        params_host_.acc_coefficient[1] = 1.0;
-        params_host_.acc_coefficient[2] = 1.0;
-        params_host_.track_coefficient[0] = 20.0;
-        params_host_.track_coefficient[1] = 20.0;
-        params_host_.track_coefficient[2] = 120.0;
-        params_host_.track_coefficient[3] = 100.0;
+        params_host_.control_coefficient = _ctrl_c;
+        params_host_.speed_coefficient[0] = _speed_c[0];
+        params_host_.speed_coefficient[1] = _speed_c[1];
+        params_host_.speed_coefficient[2] = _speed_c[2];
+        params_host_.acc_coefficient[0] = _acc_c[0];
+        params_host_.acc_coefficient[1] = _acc_c[1];
+        params_host_.acc_coefficient[2] = _acc_c[2];
+        params_host_.track_coefficient[0] = _track_c[0];
+        params_host_.track_coefficient[1] = _track_c[1];
+        params_host_.track_coefficient[2] = _track_c[2];
+        params_host_.track_coefficient[3] = _track_c[3];
+        params_host_.obstacle_coefficient = _obs_c;
+        params_host_.obs_dis_coefficient = _dis_c;
+        params_host_.crash_coefficient = _crash_c;
 
         Costmap _tmp_costmap_param = params_host_.costmap_param;
 
@@ -87,12 +112,12 @@ namespace mppi_control {
     }
 
     void SimpleCosts::paramsToDevice() {
-        HANDLE_ERROR( cudaMemcpyAsync(params_d_, &params_host_, sizeof(CostParams), cudaMemcpyHostToDevice) );
+        HANDLE_ERROR( cudaMemcpyAsync(params_d_, &params_host_, sizeof(CostParams), cudaMemcpyHostToDevice, stream_) );
         HANDLE_ERROR( cudaStreamSynchronize(stream_) );   
     }
 
     void SimpleCosts::costmapToDevice() {
-        HANDLE_ERROR( cudaFree(cost_map_d_));
+//        HANDLE_ERROR( cudaFree(cost_map_d_));
         HANDLE_ERROR( cudaMalloc((void**)&cost_map_d_, cost_map_host_.size()*sizeof(float)));
         HANDLE_ERROR( cudaMemcpyAsync(cost_map_d_, cost_map_host_.data(), cost_map_host_.size()*sizeof(float), cudaMemcpyHostToDevice, stream_) );
         HANDLE_ERROR( cudaStreamSynchronize(stream_) );
@@ -141,7 +166,7 @@ namespace mppi_control {
     }
 
     __device__ float SimpleCosts::getCollisionCost(float* s, int* crash) {
-        float crash_cost = 1000.0;
+        float crash_cost = params_d_->crash_coefficient;
         if (crash[0] == 1) {
             return crash_cost;
         }
@@ -168,7 +193,7 @@ namespace mppi_control {
             return crash_cost;
         }
 
-        return 350.0*exp(-_dis*50.0);
+        return params_d_->obstacle_coefficient*exp(-_dis*params_d_->obs_dis_coefficient);
 
     }
 

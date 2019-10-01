@@ -38,13 +38,16 @@ class SimpleCosts: public Managed {
             float speed_coefficient[3];
             float acc_coefficient[3];
             float track_coefficient[4];
+            float obstacle_coefficient;
+            float obs_dis_coefficient;
+            float crash_coefficient;
             Costmap costmap_param;
         } CostParams;
 
 
         CostParams params_host_;
 
-        SimpleCosts();
+        SimpleCosts(ros::NodeHandle _node);
 
         ~SimpleCosts();
 

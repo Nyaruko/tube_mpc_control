@@ -4,12 +4,31 @@ namespace mppi_control {
     TubeController<ROLLOUTS, BLOCKSIZE_X, NMPC_FREQ, CTRL_FREQ>::TubeController(ros::NodeHandle node_) {
         nh_ = node_;
 
-        float2 contrl_constraints[Model::CONTROL_DIM] = {make_float2(-10, 10), make_float2(-10, 10), make_float2(-5, 5), make_float2(-1.0, 1.0)};
+        /* param list */
+        int _num_timestep = 50;
+        float _gamma = 18.0;
+        float _u_constrain[4] = {10, 10, 5, 1};
+        float _u_exploration[4] = {0.3, 0.3, 0.3, 0.05};
+        nh_.param<int>("num_timestep", _num_timestep, 50);
+        nh_.param<float>("gamma", _gamma, 18.0);
+        nh_.param<float>("u_constrain/x", _u_constrain[0], 10.0);
+        nh_.param<float>("u_constrain/y", _u_constrain[1], 10.0);
+        nh_.param<float>("u_constrain/z", _u_constrain[2], 5.0);
+        nh_.param<float>("u_constrain/yaw", _u_constrain[3], 1.0);
+        nh_.param<float>("u_exploration/x", _u_exploration[0], 0.3);
+        nh_.param<float>("u_exploration/y", _u_exploration[1], 0.3);
+        nh_.param<float>("u_exploration/z", _u_exploration[2], 0.3);
+        nh_.param<float>("u_exploration/yaw", _u_exploration[3], 0.05);
+
+        float2 contrl_constraints[Model::CONTROL_DIM] = {make_float2(-_u_constrain[0], _u_constrain[0]),
+                                                         make_float2(-_u_constrain[1], _u_constrain[1]),
+                                                         make_float2(-_u_constrain[2], _u_constrain[2]),
+                                                         make_float2(-_u_constrain[3], _u_constrain[3])};
         model = new Model(1.0/(float)NMPC_FREQ,  contrl_constraints);
         nominal_model = new Model(1.0/(float)CTRL_FREQ,  contrl_constraints);
-        mppi_cost = new SimpleCosts();
+        mppi_cost = new SimpleCosts(node_);
 
-        ac_ctrl_core = new AssociateCtrlCore((float)CTRL_FREQ);
+        ac_ctrl_core = new AssociateCtrlCore(node_, (float)CTRL_FREQ);
 
         in_loop_cmd_gen = new InLoopCmdGen();
 
@@ -24,9 +43,9 @@ namespace mppi_control {
         cudaStreamCreate(& optimization_stride);
 
         float init_u[Model::CONTROL_DIM] = {0,0,0,0};
-        float exploration_std[Model::CONTROL_DIM] = {0.3,0.3,0.3,0.05};
+        float exploration_std[Model::CONTROL_DIM] = {_u_exploration[0], _u_exploration[1], _u_exploration[2], _u_exploration[3]};
 
-        mppi = new MPPIController<Model, SimpleCosts, ROLLOUTS, BLOCKSIZE_X>(model, mppi_cost, 50, NMPC_FREQ, 18.0, exploration_std, init_u, optimization_stride);
+        mppi = new MPPIController<Model, SimpleCosts, ROLLOUTS, BLOCKSIZE_X>(model, mppi_cost, _num_timestep, NMPC_FREQ, _gamma, exploration_std, init_u, optimization_stride);
 
         nominal_sys = new NominalSys<Model>(nominal_model);
 
@@ -69,6 +88,16 @@ namespace mppi_control {
 
     template <int ROLLOUTS, int BLOCKSIZE_X, int NMPC_FREQ, int CTRL_FREQ>
     TubeController<ROLLOUTS, BLOCKSIZE_X, NMPC_FREQ, CTRL_FREQ>::~TubeController() {
+        delete mppi;
+        delete nominal_sys;
+        delete model;
+        delete nominal_model;
+        delete mppi_cost;
+        delete ac_ctrl_core;
+        delete in_loop_cmd_gen;
+        delete mavros_wrapper;
+        delete state_interface;
+        delete logger;
     }
 
     template <int ROLLOUTS, int BLOCKSIZE_X, int NMPC_FREQ, int CTRL_FREQ>

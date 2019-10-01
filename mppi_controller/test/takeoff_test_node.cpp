@@ -39,6 +39,75 @@ int main(int argc, char** argv) {
 
     sleep(25);
 
+    set_hover.request.x_ned = 6.0;
+    set_hover.request.y_ned = 0.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
+
+    set_hover.request.x_ned = 4.0;
+    set_hover.request.y_ned = 8.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
+
+    set_hover.request.x_ned = 2.0;
+    set_hover.request.y_ned = 0.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
+
+    set_hover.request.x_ned = 0.0;
+    set_hover.request.y_ned = 8.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
+
+    set_hover.request.x_ned = 8.0;
+    set_hover.request.y_ned = 6.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
+
+    set_hover.request.x_ned = 0.0;
+    set_hover.request.y_ned = 4.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
+
+    set_hover.request.x_ned = 8.0;
+    set_hover.request.y_ned = 2.0;
+    set_hover.request.z_ned = -1.0;
+    set_hover.request.yaw = 3.0;
+    hover_set_srv.call(set_hover);
+
+    ROS_INFO("hover test");
+
+    sleep(6);
 
     set_hover.request.x_ned = 0.0;
     set_hover.request.y_ned = 0.0;
@@ -47,7 +116,7 @@ int main(int argc, char** argv) {
     hover_set_srv.call(set_hover);
     ROS_INFO("hover test");
 
-    sleep(15);
+    sleep(6);
 
     set_takeoff_land.request.takeoff = false;
     takeoff_land_srv.call(set_takeoff_land);

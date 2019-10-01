@@ -14,7 +14,7 @@
 class Logger {
 public:
     Logger(ros::NodeHandle& node) {
-        node.param<std::string>("logger_file_name", _file_path, "/home/lhc/work/CUDA_test_ws/src/mppi_controller/log/");
+        node.param<std::string>("logger_file_path", _file_path, "/home/lhc/work/CUDA_test_ws/src/mppi_controller/log/");
         is_open = false;
     }
 
